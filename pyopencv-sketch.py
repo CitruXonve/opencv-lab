@@ -7,11 +7,8 @@ import matplotlib.pyplot as plt
 def my_inv(src):
     width, height, ch = src.shape
     res = src.copy()
-    # res=np.zeros((height,width,ch), np.uint8)
-    # print height,width,ch
     for i in range(width):
         for j in range(height):
-            # print(src[i,j])
             res[i, j] = (255 - src[i, j][0], 255 -
                          src[i, j][1], 255 - src[i, j][2])
     return res
@@ -36,10 +33,12 @@ def my_merge(src, append):
 
 
 def main():
-    # filename = 'img/papers.co-ar10-cute-girl-illustration-anime-sky-33-iphone6-wallpaper.jpg'
-    filename = 'img/20170509205642.jpg'
+    print('Specify input image:./img/',end='')
+    img_dir = 'img/'
+    data_dir = 'data/'
+    filename = input()
 
-    origin = cv2.imread(filename, cv2.IMREAD_COLOR)
+    origin = cv2.imread(img_dir + filename, cv2.IMREAD_COLOR)
     b, g, r = cv2.split(origin)
     origin = cv2.merge([r, g, b])
 
@@ -50,7 +49,8 @@ def main():
     inv = origin.copy()
     inv = cv2.bitwise_not(inv)
     # inv=my_inv(inv)
-    blur = cv2.GaussianBlur(inv, (5, 5), 0)
+    blur = cv2.GaussianBlur(inv, (0, 0), 0.6)
+    merge = my_merge(origin, blur)
 
     plt.figure(num='anime')
 
@@ -66,10 +66,14 @@ def main():
 
     plt.subplot(1, 3, 3)
     plt.title('merge')
-    plt.imshow(my_merge(origin, blur))
+    plt.imshow(merge)
     plt.axis('off')
 
     plt.show()
+    r, g, b = cv2.split(merge)
+    merge = cv2.merge([b, g, r])
+    cv2.imwrite(data_dir + filename, merge)
+
 
 if __name__ == '__main__':
     main()
