@@ -1,7 +1,10 @@
-﻿# coding:utf-8
+﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from time import clock
 
 
 def my_inv(src):
@@ -32,11 +35,26 @@ def my_merge(src, append):
     return res
 
 
+def get_file_name(filename):
+    tmp = filename.split('.')
+    return tmp[0]
+
+
+def get_file_extension(filename):
+    tmp = filename.split('.')
+    return tmp[len(tmp) - 1]
+
+
 def main():
-    print('Specify input image:./img/',end='')
+    print('Specify input image:./img/', end='')
     img_dir = 'img/'
     data_dir = 'data/'
-    filename = input()
+    try:
+        filename = raw_input()
+    except:
+        filename = input()
+
+    before_process = clock()
 
     origin = cv2.imread(img_dir + filename, cv2.IMREAD_COLOR)
     b, g, r = cv2.split(origin)
@@ -46,30 +64,37 @@ def main():
     # cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode
     # cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel
 
+    if get_file_extension(filename) != 'png':
+        origin = cv2.bilateralFilter(origin, 5, 80, 120)
+
     inv = origin.copy()
     inv = cv2.bitwise_not(inv)
     # inv=my_inv(inv)
-    blur = cv2.GaussianBlur(inv, (0, 0), 0.6)
+    blur = cv2.GaussianBlur(inv, (0, 0), 0.8)
     merge = my_merge(origin, blur)
 
-    plt.figure(num='anime')
+    after_process = clock()
+
+    plt.figure(num='anime' + ' time elapsed: %.3f s' %
+               (after_process - before_process))
 
     plt.subplot(1, 3, 1)
-    plt.title('origin image')
+    plt.title('Orinigal image')
     plt.imshow(origin)
     plt.axis('off')  # 不显示坐标尺寸
 
     plt.subplot(1, 3, 2)
-    plt.title('inv && GaussianBlur')
+    plt.title('Inverse && GaussianBlur')
     plt.imshow(blur)
     plt.axis('off')
 
     plt.subplot(1, 3, 3)
-    plt.title('merge')
+    plt.title('Merged')
     plt.imshow(merge)
     plt.axis('off')
 
     plt.show()
+
     r, g, b = cv2.split(merge)
     merge = cv2.merge([b, g, r])
     cv2.imwrite(data_dir + filename, merge)
