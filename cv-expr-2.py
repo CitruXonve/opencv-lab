@@ -1,3 +1,4 @@
+#https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_feature2d/py_shi_tomasi/py_shi_tomasi.html
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
@@ -16,22 +17,22 @@ def main():
     except:
         filename = input()
 
-    origin = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    origin = cv2.imread(filename, cv2.IMREAD_COLOR)
+    # origin = cv2.cvtColor(origin, cv2.COLOR_BGR2RGB)
+    gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
 
     # cv2.IMREAD_COLOR : Loads a color image. Any transparency of image will be neglected. It is the default flag.
     # cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode
     # cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel
 
-    hist = cv2.calcHist([origin], [0], None, [256], [0, 256])
-    equ = cv2.equalizeHist(origin)
-    hist_equ = cv2.calcHist([equ], [0], None, [256], [0, 256])
+    corners = cv2.goodFeaturesToTrack(gray, 25, 0.01, 10)
+    corners = np.int0(corners)
 
-    plt.subplot(221), plt.imshow(origin, 'gray'), plt.axis('off')
-    plt.subplot(222), plt.plot(hist)
-    plt.subplot(223), plt.imshow(equ, 'gray'), plt.axis('off')
-    plt.subplot(224), plt.plot(hist_equ)
-    plt.xlim([0, 256])
+    for i in corners:
+        x, y = i.ravel()
+        cv2.circle(gray, (x, y), 2, 255, -1)
 
+    plt.imshow(gray, 'gray')
     plt.show()
 
 if __name__ == '__main__':
