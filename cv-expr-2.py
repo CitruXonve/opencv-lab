@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 
 def main():
     print('Specify input image:', end='')
-    # img_dir = 'img/'
-    # data_dir = 'data/'
+
     try:
         filename = raw_input()
     except:
         filename = input()
 
     origin = cv2.imread(filename, cv2.IMREAD_COLOR)
+    origin = cv2.GaussianBlur(origin, (0, 0), 0.8)
     # origin = cv2.cvtColor(origin, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
 
@@ -25,14 +25,16 @@ def main():
     # cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode
     # cv2.IMREAD_UNCHANGED : Loads image as such including alpha channel
 
+
+
     corners = cv2.goodFeaturesToTrack(gray, 25, 0.01, 10)
     corners = np.int0(corners)
 
     for i in corners:
         x, y = i.ravel()
-        cv2.circle(gray, (x, y), 2, 255, -1)
+        cv2.circle(origin, (x, y), 2, 255, -1)
 
-    plt.imshow(gray, 'gray')
+    plt.imshow(origin)
     plt.show()
 
 if __name__ == '__main__':
