@@ -108,8 +108,7 @@ def get_file_extension(filename):
 
 
 def main():
-    print('Specify input image:./img/', end='')
-    img_dir = 'img/'
+    print('Specify an input image:', end='')
     data_dir = 'data/'
     try:
         filename = raw_input()
@@ -118,7 +117,7 @@ def main():
 
     before_process = clock()
 
-    origin = cv2.imread(img_dir + filename, cv2.IMREAD_COLOR)
+    origin = cv2.imread(filename, cv2.IMREAD_COLOR)
     b, g, r = cv2.split(origin)
     origin = cv2.merge([r, g, b])
 
