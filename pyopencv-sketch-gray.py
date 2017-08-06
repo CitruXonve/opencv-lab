@@ -11,42 +11,39 @@ from time import clock
 
 
 def my_inv(src):
-    width, height, ch = src.shape
+    width, height = src.shape
     res = src.copy()
     for i in range(width):
         for j in range(height):
-            res[i, j] = (255 - src[i, j][0], 255 -
-                         src[i, j][1], 255 - src[i, j][2])
+            res[i, j] = 255 - src[i, j]
     return res
 
 
 def my_merge(src, append):
     res = src.copy()
-    width, height, ch = src.shape
+    width, height = src.shape
     for i in range(width):
         for j in range(height):
-            for c in range(ch):
-                base = src[i, j][c]
-                overlay = append[i, j][c]
-                # Photoshop混合模式之颜色减淡
-                if overlay < 255:
-                    # tmp = base + (base * int(overlay)) / (255 - overlay)
-                    res[i, j][c] = min((base << 8) // (255 - overlay), 255)
-                else:
-                    res[i, j][c] = 255
+            base = src[i, j]
+            overlay = append[i, j]
+            # Photoshop混合模式之颜色减淡
+            if overlay < 255:
+                # tmp = base + (base * int(overlay)) / (255 - overlay)
+                res[i, j] = min((base << 8) // (255 - overlay), 255)
+            else:
+                res[i, j] = 255
     return res
 
 
 def my_merge2(src, append):
     res = src.copy()
-    width, height, ch = src.shape
+    width, height = src.shape
     for i in range(width):
         for j in range(height):
-            for c in range(ch):
-                base = src[i, j][c]
-                overlay = append[i, j][c]
-                # Photoshop混合模式之变亮
-                res[i, j][c] = max(base, overlay)
+            base = src[i, j]
+            overlay = append[i, j]
+            # Photoshop混合模式之变亮
+            res[i, j] = max(base, overlay)
     return res
 
 
@@ -83,7 +80,7 @@ def createRGBColorTable(Highlight, Midtones, Shadow, OutputHighlight, OutputShad
 
 
 def adjustRGBLevel(src, Highlight, Midtones, Shadow, OutputHighlight, OutputShadow):
-    width, height, channels = src.shape
+    width, height = src.shape
     dst = np.zeros(src.shape, np.uint8)
 
     try:
@@ -94,8 +91,7 @@ def adjustRGBLevel(src, Highlight, Midtones, Shadow, OutputHighlight, OutputShad
 
     for i in range(width):
         for j in range(height):
-            for c in range(channels):
-                dst[i, j][c] = colorTable[src[i, j][c]]
+            dst[i, j] = colorTable[src[i, j]]
 
     return dst
 
@@ -120,9 +116,7 @@ def main():
 
     before_process = clock()
 
-    origin = cv2.imread(filename, cv2.IMREAD_COLOR)
-    b, g, r = cv2.split(origin)
-    origin = cv2.merge([r, g, b])
+    origin = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
 
     # cv2.IMREAD_COLOR : Loads a color image. Any transparency of image will be neglected. It is the default flag.
     # cv2.IMREAD_GRAYSCALE : Loads image in grayscale mode
@@ -147,53 +141,45 @@ def main():
 
     plt.subplot(2, 4, 1)
     plt.title('Orinigal image')
-    plt.imshow(origin)
+    plt.imshow(origin, 'gray')
     plt.axis('off')  # 不显示坐标尺寸
 
     plt.subplot(2, 4, 2)
     plt.title('Inverse && GaussianBlur')
-    plt.imshow(blur)
+    plt.imshow(blur, 'gray')
     plt.axis('off')
 
     plt.subplot(2, 4, 3)
     plt.title('Merged')
-    plt.imshow(merge)
+    plt.imshow(merge, 'gray')
     plt.axis('off')
 
     plt.subplot(2, 4, 4)
     plt.title('Merged-Reverse')
-    plt.imshow(merge_r)
+    plt.imshow(merge_r, 'gray')
     plt.axis('off')
 
     plt.subplot(2, 4, 5)
     plt.title('Merged-2p')
-    plt.imshow(merge_2p)
+    plt.imshow(merge_2p, 'gray')
     plt.axis('off')
 
     plt.subplot(2, 4, 6)
     plt.title('Merged-2p+')
-    plt.imshow(merge_2pa)
+    plt.imshow(merge_2pa, 'gray')
     plt.axis('off')
 
     plt.show()
 
-    r, g, b = cv2.split(merge)
-    merge = cv2.merge([b, g, r])
     cv2.imwrite(data_dir + get_file_name(filename) +
                 '.' + get_file_extension(filename), merge)
 
-    r, g, b = cv2.split(merge_r)
-    merge_r = cv2.merge([b, g, r])
     cv2.imwrite(data_dir + get_file_name(filename) +
                 '-r.' + get_file_extension(filename), merge_r)
 
-    r, g, b = cv2.split(merge_2p)
-    merge_2p = cv2.merge([b, g, r])
     cv2.imwrite(data_dir + get_file_name(filename) +
                 '-2p.' + get_file_extension(filename), merge_2p)
 
-    r, g, b = cv2.split(merge_2pa)
-    merge_2pa = cv2.merge([b, g, r])
     cv2.imwrite(data_dir + get_file_name(filename) +
                 '-2p+.' + get_file_extension(filename), merge_2pa)
 
